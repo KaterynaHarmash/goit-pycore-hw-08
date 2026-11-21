@@ -2,7 +2,7 @@
 
 A command-line personal assistant for managing contacts, phone numbers, and birthdays.
 
-The application is built with Python using object-oriented programming (OOP) principles. It provides a simple command-line interface for managing an address book and tracking upcoming birthdays.
+The application is built with Python using object-oriented programming (OOP) principles. It provides a simple command-line interface for managing an address book, tracking upcoming birthdays, and preserving contact data between application runs.
 
 ## Features
 
@@ -15,15 +15,18 @@ The application is built with Python using object-oriented programming (OOP) pri
 - Display upcoming birthdays within the next 7 days.
 - Move weekend birthday greetings to the following Monday.
 - Validate user input and handle errors.
+- Save and restore contact data using Python pickle serialization.
 
 ## Project Structure
 
 ```text
 .
-├── assistant.py      # Command-line interface and command handlers
-├── fields.py         # Field, Name, Phone and Birthday classes
-├── record.py         # Record class for contact management
-├── address_book.py   # AddressBook class and birthday calculations
+├── assistant.py       # Command-line interface and command handlers
+├── fields.py          # Field, Name, Phone and Birthday classes
+├── record.py          # Record class for contact management
+├── address_book.py    # AddressBook class and birthday calculations
+├── storage.py         # Saving and loading address book data
+├── addressbook.pickle # Serialized address book data (generated at runtime)
 └── README.md
 ```
 
@@ -44,7 +47,7 @@ The application is built with Python using object-oriented programming (OOP) pri
 | `add-birthday` | Add a birthday to a contact | `add-birthday John 19.11.1993` |
 | `show-birthday` | Display a contact's birthday | `show-birthday John` |
 | `birthdays` | Display upcoming birthdays | `birthdays` |
-| `close` / `exit` | Exit the application | `exit` |
+| `close` / `exit` | Save data and exit the application | `exit` |
 
 ## Data Validation
 
@@ -93,14 +96,31 @@ Main methods:
 - `delete()` — removes a contact.
 - `get_upcoming_birthdays()` — retrieves upcoming birthdays.
 
-### `assistant.py`
+### `storage.py`
 
-Implements the command-line interface:
+Handles persistent storage of the address book using Python's `pickle` module.
 
-- Parses user input.
-- Handles commands.
-- Processes input errors.
-- Runs the main application loop.
+Main functions:
+
+- `save_data()` — serializes the address book and saves it to `addressbook.pickle`.
+- `load_data()` — deserializes and restores the address book when the application starts.
+- If the storage file does not exist, `load_data()` returns a new, empty `AddressBook`.
+
+The application automatically loads saved contact data on startup and saves it when the user exits using the `close` or `exit` command.
+
+## Data Persistence
+
+Contact data is stored between application runs using Python pickle serialization.
+
+The persistence workflow:
+
+1. When the application starts, it attempts to load the address book from `addressbook.pickle`.
+2. If the file does not exist, a new empty address book is created.
+3. During the session, contacts and their information are managed in memory.
+4. When the user enters `close` or `exit`, the current address book is serialized and saved to the file.
+5. On the next launch, the saved data is restored automatically.
+
+The `addressbook.pickle` file is generated automatically and does not need to be created manually.
 
 ## Upcoming Birthdays
 
@@ -114,9 +134,9 @@ Additional rules:
 
 ## Limitations
 
-- Contact data is stored in memory and is not saved between application runs.
 - The application is designed for command-line interaction.
 - Phone numbers are stored as strings and validated as 10-digit numeric values.
+- Data is saved when the application is closed using the `close` or `exit` command. Unexpected termination may prevent the latest changes from being saved.
 
 ## Learning Objectives
 
@@ -129,3 +149,5 @@ This project demonstrates practical use of:
 - Decorators and exception handling.
 - Modular application structure and imports.
 - Date and time manipulation with `datetime`.
+- Data serialization and deserialization with `pickle`.
+- Persistent storage of Python objects.
