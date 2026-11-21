@@ -2,6 +2,7 @@ from functools import wraps
 
 from address_book import AddressBook
 from record import Record
+from storage import load_data, save_data
 
 def input_error(func):
     @wraps(func)
@@ -150,7 +151,7 @@ def birthdays(args, book: AddressBook):
     )
 
 def main():
-    book = AddressBook()
+    book = load_data()
 
     print("Welcome to the assistant bot!")
 
@@ -160,6 +161,7 @@ def main():
         command, args = parse_input(user_input)
 
         if command in ["close", "exit"]:
+            save_data(book)
             print("Good bye!")
             break
 
